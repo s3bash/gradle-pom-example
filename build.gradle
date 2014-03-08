@@ -1,0 +1,93 @@
+apply plugin: "java"
+apply plugin: "eclipse"
+apply plugin: "findbugs"
+apply plugin: "maven"
+
+
+//Define the main and test source sets
+sourceSets {
+	main {
+		java { srcDir 'src/main/java'}
+		resources { srcDir 'src/main/resources'}
+
+		output.classesDir   = "$buildDir/classes"
+		output.resourcesDir = "$buildDir/classes"
+	}
+	test {
+		java { srcDir 'src/test/java'}
+		resources { srcDir 'src/test/resources'}
+	}
+}
+
+
+findbugs { ignoreFailures = true }
+tasks.withType(FindBugs) {
+	reports {
+		xml.enabled = false
+		html.enabled = true
+	}
+}
+
+//Compile the project with all debug options enabled.
+compileJava.options.debugOptions.debugLevel = "source,lines,vars"
+compileTestJava.options.debugOptions.debugLevel = "source,lines,vars"
+
+repositories {
+	mavenCentral()
+}
+
+
+sourceCompatibility = javaSourceVersion
+targetCompatibility = javaTargetVersion
+
+
+//When creating eclipse files make sure to clean up first
+tasks.eclipse.dependsOn(cleanEclipse)
+
+
+/*
+ * Eclipse project setup for eclipse task and "import as gradle project" in eclipse IDE
+ */
+eclipse {
+
+	classpath {
+		defaultOutputDir = file('build/classes')
+		downloadSources  = true
+	}
+}
+
+configurations {
+	//Uncomment this to exclude commons-logging
+	//all*.exclude group: 'commons-logging', module: 'commons-logging'
+}
+
+
+dependencies {
+
+	/*
+	 * Testing Libs
+	 */
+	testCompile 'junit:junit:4.+'
+	//testCompile 'org.testng:testng:6.8.7'
+
+	compile 'commons-codec:commons-codec:1.9'
+
+
+	/*
+	 * Logging
+	 */
+	//compile 'org.slf4j:jcl-over-slf4j:1.7.+'
+	compile 'org.slf4j:slf4j-api:1.7.+'
+	compile 'org.slf4j:slf4j-log4j12:1.7.+'
+	compile 'log4j:log4j:1.2.+'
+
+	compile 'org.apache.commons:commons-lang3:3.+'
+
+	//Reduce boilerplate code, requires integration into IDE
+	compile "org.projectlombok:lombok:1.12.+"
+
+	compile 'com.fasterxml.jackson.core:jackson-core:2.3.+'
+	compile 'com.fasterxml.jackson.core:jackson-annotations:2.3.+'
+	compile 'com.fasterxml.jackson.core:jackson-databind:2.3.+'
+}
+
